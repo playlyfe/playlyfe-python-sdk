@@ -1,4 +1,4 @@
-Playlyfe Python SDK [![PyPI version](https://badge.fury.io/py/playlyfe.svg)](http://badge.fury.io/py/playlyfe)[![PyPi downloads](https://pypip.in/d/$REPO/badge.png)](https://crate.io/packages/$REPO/)
+Playlyfe Python SDK [![PyPI version](https://badge.fury.io/py/playlyfe.svg)](http://badge.fury.io/py/playlyfe)[![PyPi downloads](https://pypip.in/d/playlyfe/badge.png)](https://crate.io/packages/playlyfe/)
 =================  
 This is the official OAuth 2.0 Python client SDK for the Playlyfe API.  
 It supports the `client_credentials` and `authorization code` OAuth 2.0 flows.    
