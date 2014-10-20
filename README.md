@@ -16,7 +16,7 @@ pip install playlyfe
 or if you are using django or flask
 Just add it to your requirements.txt file
 ```python
-playlyfe==0.0.0
+playlyfe==0.1.1
 ```
 and do a pip install -r requirements.txt
 
@@ -171,7 +171,7 @@ You can either use `lambdas` or `methods` for the store and load functions
       print 'The access token will be loaded by the sdk for each request'
       return json.loads(redis.get('token'))
 
-    redis = Redis.new
+    redis = redis.StrictRedis(host='localhost', port=6379, db=0)
     Playlyfe.init(
       client_id = "",
       client_secret = "",
@@ -179,14 +179,14 @@ You can either use `lambdas` or `methods` for the store and load functions
       store = staticmethod(lambda token: redis.set('token', json.dumps(token))),
       load = staticmethod(lambda: return json.loads(redis.get('token')))
     )
-    else
-        Playlyfe.init(
-          client_id = "",
-          client_secret = "",
-          type = 'client',
-          store = staticmethod(),
-          load = staticmethod(lambda: return json.loads(redis.get('token')))
-        )
+    # OR
+    Playlyfe.init(
+      client_id = "",
+      client_secret = "",
+      type = 'client',
+      store = staticmethod(my_store),
+      load = staticmethod(my_loader)
+    )
 ```
 ### API
 ```python
