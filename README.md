@@ -68,7 +68,7 @@ Playlyfe.post(
   body = { 'trigger': "#{@trigger}" }
 )
 ```
-# Examples
+# Examples for [Flask](http://flask.pocoo.org/)
 ## 1. Client Credentials Flow
 A typical flask app using client credentials code flow with a single route would look something like this
 ```python
