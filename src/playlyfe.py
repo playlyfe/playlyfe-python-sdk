@@ -26,32 +26,30 @@ class Playlyfe:
   redirect_uri = ''
   code = None
 
-  @staticmethod
-  def init(client_id, client_secret, type, redirect_uri='', store=None, load=None):
-    Playlyfe.client_id = client_id
-    Playlyfe.client_secret = client_secret
-    Playlyfe.type = type
-    Playlyfe.store = store
-    Playlyfe.load = load
+  def __init__(self, client_id, client_secret, type, redirect_uri='', store=None, load=None):
+    self.client_id = client_id
+    self.client_secret = client_secret
+    self.type = type
+    self.store = store
+    self.load = load
     if store == None:
-      Playlyfe.store = staticmethod(lambda access_token: '')
+      self.store = lambda access_token: ''
 
     if type == 'client':
-      Playlyfe.get_access_token()
+      self.get_access_token()
     else:
       if len(redirect_uri) == 0:
         raise PlaylyfeException('init_failed', 'Please provide a redirect_uri')
       else:
-        Playlyfe.redirect_uri = redirect_uri
+        self.redirect_uri = redirect_uri
 
-  @staticmethod
-  def get_access_token():
+  def get_access_token(self):
     headers = { 'Accept': 'text/json'}
-    if Playlyfe.type == 'client':
-      data = urllib.urlencode({ 'client_id': Playlyfe.client_id, 'client_secret': Playlyfe.client_secret, 'grant_type': 'client_credentials'})
+    if self.type == 'client':
+      data = urllib.urlencode({ 'client_id': self.client_id, 'client_secret': self.client_secret, 'grant_type': 'client_credentials'})
     else:
-      data = urllib.urlencode({ 'client_id': Playlyfe.client_id, 'client_secret': Playlyfe.client_secret,
-        'grant_type': 'authorization_code', 'redirect_uri': Playlyfe.redirect_uri, 'code': Playlyfe.code
+      data = urllib.urlencode({ 'client_id': self.client_id, 'client_secret': self.client_secret,
+        'grant_type': 'authorization_code', 'redirect_uri': self.redirect_uri, 'code': self.code
       })
     req = urllib2.Request('https://playlyfe.com/auth/token', data, headers)
     try:
@@ -61,19 +59,18 @@ class Playlyfe:
       e.close()
       raise PlaylyfeException(err['error'], err['error_description'])
     token =json.loads(response)
-    token['expires_at'] = int(round(time.time()*1000)) + int(token['expires_in'])
+    token['expires_at'] = int(round(time.time())) + int(token['expires_in'])
     del token['expires_in']
-    Playlyfe.store(token)
-    if Playlyfe.load == None:
-      Playlyfe.load = staticmethod(lambda: token)
+    self.store(token)
+    if self.load == None:
+      self.load = lambda: token
 
-  @staticmethod
-  def api(method='GET', route='', query = {}, body={}, raw=False):
-    access_token = Playlyfe.load()
-    if access_token['expires_at'] < int(round(time.time()*1000)):
+  def api(self, method='GET', route='', query = {}, body={}, raw=False):
+    access_token = self.load()
+    if int(round(time.time())) >= int(access_token['expires_at']):
       print 'Access Token Expired'
-      Playlyfe.get_access_token()
-      access_token = Playlyfe.load()
+      self.get_access_token()
+      access_token = self.load()
     query['access_token'] = access_token['access_token']
     query = urllib.urlencode(query)
     headers = { 'Accept': 'text/json', 'Content-Type': 'application/json' }
@@ -99,35 +96,25 @@ class Playlyfe:
       e.close()
       raise PlaylyfeException(err['error'], err['error_description'])
 
-  @staticmethod
-  def get(route='', query={}, raw=False):
-    return Playlyfe.api('GET', route, query, {}, raw)
+  def get(self, route='', query={}, raw=False):
+    return self.api('GET', route, query, {}, raw)
 
-  @staticmethod
-  def post(route='', query={}, body={}):
-    return Playlyfe.api('POST', route, query, body)
+  def post(self, route='', query={}, body={}):
+    return self.api('POST', route, query, body)
 
-  @staticmethod
-  def put(route='', query={}, body={}):
-    return Playlyfe.api('PUT', route, query, body)
+  def put(self, route='', query={}, body={}):
+    return self.api('PUT', route, query, body)
 
-  @staticmethod
-  def patch(route='', query={}, body={}):
-    return Playlyfe.api('PATCH', route, query, body)
+  def patch(self, route='', query={}, body={}):
+    return self.api('PATCH', route, query, body)
 
-  @staticmethod
-  def delete(route='', query={}, body={}):
-    return Playlyfe.api('DELETE', route, query)
+  def delete(self, route='', query={}, body={}):
+    return self.api('DELETE', route, query)
 
-  @staticmethod
-  def get_login_url():
-    query = urllib.urlencode({ 'response_type': 'code', 'redirect_uri': Playlyfe.redirect_uri, 'client_id': Playlyfe.client_id })
+  def get_login_url(self):
+    query = urllib.urlencode({ 'response_type': 'code', 'redirect_uri': self.redirect_uri, 'client_id': self.client_id })
     return "https://playlyfe.com/auth?%s" %query
 
-  @staticmethod
-  def exchange_code(code):
-    if code == None:
-      raise PlaylyfeException('init_failed', 'You must pass in a code in exchange_code for the auth code flow')
-    else:
-      Playlyfe.code = code
-      Playlyfe.get_access_token()
+  def exchange_code(self, code):
+    self.code = code
+    self.get_access_token()

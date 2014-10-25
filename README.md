@@ -6,6 +6,7 @@ This is the official OAuth 2.0 Python client SDK for the Playlyfe API.
 It supports the `client_credentials` and `authorization code` OAuth 2.0 flows.
 For a complete API Reference checkout [Playlyfe Developers](https://dev.playlyfe.com/docs/api) for more information.
 
+
 Requires
 --------
 Python 2.7.6
@@ -18,7 +19,7 @@ pip install playlyfe
 or if you are using django or flask
 Just add it to your requirements.txt file
 ```python
-playlyfe==0.1.1
+playlyfe==0.2.0
 ```
 and do a pip install -r requirements.txt
 
@@ -39,10 +40,14 @@ Using
   And then note down the client id and client secret you will need it later for using it in the sdk
 
 The Playlyfe class allows you to make rest api calls like GET, POST, .. etc
-Example: GET
 ```python
 # To get infomation of the player johny
-player = Playlyfe.get(
+pl = Playlyfe(
+    client_id = "Your client id",
+    client_secret = "Your client secret",
+    type = 'client'
+  )
+player = pl.get(
   route =  '/player',
   query = { 'player_id': 'johny' }
 )
@@ -50,21 +55,17 @@ print player['id']
 print player['scores']
 
 # To get all available processes with query
-processes = Playlyfe.get(route =  '/processes', query = { player_id: 'johny' })
+processes = pl.get(route =  '/processes', query = { player_id: 'johny' })
 print processes
-```
-
-Example: POST
-```python
 # To start a process
-process =  Playlyfe.post(
+process =  pl.post(
   route =  "/definitions/processes/collect",
   query = { 'player_id': 'johny' },
   body = { 'name': "My First Process" }
 )
 
 #To play a process
-Playlyfe.post(
+pl.post(
   route =  "/processes/%s/play" %process_id,
   query = { 'player_id': 'johny' },
   body = { 'trigger': "#{@trigger}" }
@@ -74,15 +75,14 @@ Playlyfe.post(
 ## 1. Client Credentials Flow
 A typical flask app using client credentials code flow with a single route would look something like this
 ```python
-Playlyfe.init(
-  client_id = "",
-  client_secret = "",
-  type = 'client'
-)
-
 @app.route("/client")
 def client():
-  players = Playlyfe.get(route = '/game/players')
+  pl = Playlyfe(
+    client_id = "YWY1ZTNhNDYtZmFmNi00MzNiLWIxZDktODFlNTVjYjEzNjA0",
+    client_secret = "NDFhMDgzYWQtZGI1ZS00YTE3LWI5YTktYzliNmQ2YmI4NGJiNzg2YzIyODAtNTg1My0xMWU0LWE4MDEtZjkwOTJkZGEwOWUz",
+    type = 'client'
+  )
+  players = pl.get(route = '/game/players')
   html = "<ul>"
   for player in players['data']:
     html += "<li>" + str(player['alias']) + "</li>"
@@ -98,19 +98,10 @@ Playlyfe.exchange_code(code)
 Now you should be able to access the Playlyfe api across all your
 controllers.
 ```python
-@app.route("/code", methods=['GET', 'POST'])
-def code():
-  params = request.args.items()
-  if request.method == 'GET' and params[0][1] != None:
-    Playlyfe.exchange_code(params[0][1])
-    session['username'] = "user1"
-    return redirect(url_for('home'))
-  else:
-    return redirect(url_for('login'))
-
-@app.route("/login", methods=['GET', 'POST'])
+@app.route("/login")
 def login():
-  Playlyfe.init(
+  global pl
+  pl = Playlyfe(
     client_id = "YmE1MDQzMmUtMmU4MC00YWU4LWEyZGMtODJiMDQ3NGY2NDNh",
     client_secret = "ZTczNTM3N2UtMmE3MS00ZDdkLWI4NzctZjM3ZDFjZGI5ZGQ4YjM0Y2ViNTAtNTg1My0xMWU0LWE4MDEtZjkwOTJkZGEwOWUz",
     type = 'code',
@@ -119,21 +110,34 @@ def login():
   if 'username' in session:
     return redirect(url_for('home'))
   else:
-    url = Playlyfe.get_login_url()
+    url = pl.get_login_url()
     return """
       <h2> Please Login to your Playlyfe Account </h1>
       <h2><a href="%s">Login</a></h2>
     """ %url
 
+@app.route("/code")
+def code():
+  global pl
+  params = request.args.items()
+  if params[0][1] != None:
+    pl.exchange_code(params[0][1])
+    session['username'] = "user1"
+    return redirect(url_for('home'))
+  else:
+    return redirect(url_for('login'))
+  return ""
+
 @app.route("/home")
 def home():
+  global pl
   if 'username' in session:
-    players = Playlyfe.get(route = '/game/players')
+    players = pl.get(route = '/game/players')
     html = "<ul>"
     for player in players['data']:
       html += "<li>" + str(player['alias']) + "</li>"
     html+= "</ul>"
-    html+= "<a href='/logout'> Sign out</a>"
+    html+= "<a href=\"/logout\"> Sign out</a>"
     return html
   else:
     return 'You are not logged in'
@@ -141,19 +145,19 @@ def home():
 @app.route("/logout")
 def logout():
   session.pop('username', None)
-  return redirect(url_for('/'))
+  return redirect(url_for('login'))
 ```
 # Documentation
 ## Init
 You can initiate a client by giving the client_id and client_secret params
 ```python
-Playlyfe.init(
+Playlyfe(
     client_id = ''
     client_secret = ''
     type = 'client' or 'code'
     redirect_uri = 'The url to redirect to' #only for auth code flow
-    store = staticmethod(lambda token: redis.store(token)) # The lambda which will persist the access token to a database. You have to persist the token to a database if you want the access token to remain the same in every request
-    load = staticmethod(lambda: return redis.get(token)) # The lambda which will load the access token. This is called internally by the sdk on every request so the
+    store = lambda token: redis.store(token) # The lambda which will persist the access token to a database. You have to persist the token to a database if you want the access token to remain the same in every request
+    load = lambda: return redis.get(token) # The lambda which will load the access token. This is called internally by the sdk on every request so the 
     #the access token can be persisted between requests
 )
 ```
@@ -174,25 +178,25 @@ You can either use `lambdas` or `methods` for the store and load functions
       return json.loads(redis.get('token'))
 
     redis = redis.StrictRedis(host='localhost', port=6379, db=0)
-    Playlyfe.init(
+    Playlyfe(
       client_id = "",
       client_secret = "",
       type = 'client',
-      store = staticmethod(lambda token: redis.set('token', json.dumps(token))),
-      load = staticmethod(lambda: return json.loads(redis.get('token')))
+      store = lambda token: redis.set('token', json.dumps(token)),
+      load = lambda: return json.loads(redis.get('token'))
     )
     # OR
-    Playlyfe.init(
+    Playlyfe(
       client_id = "",
       client_secret = "",
       type = 'client',
-      store = staticmethod(my_store),
-      load = staticmethod(my_loader)
+      store = my_store,
+      load = my_loader
     )
 ```
 ### API
 ```python
-Playlyfe.api(
+api(
     method = 'GET' # The request method can be GET/POST/PUT/PATCH/DELETE
     route =  '' # The api route to get data from
     query = {} # The query params that you want to send to the route
@@ -202,7 +206,7 @@ Playlyfe.api(
 
 ### Get
 ```python
-Playlyfe.get(
+get(
     route =  '' # The api route to get data from
     query = {} # The query params that you want to send to the route
     raw = False # Whether you want the response to be in raw string form or json
@@ -210,7 +214,7 @@ Playlyfe.get(
 ```
 ### Post
 ```python
-Playlyfe.post(
+post(
     route =  '' # The api route to post data to
     query = {} # The query params that you want to send to the route
     body = {} # The data you want to post to the api this will be automagically converted to json
@@ -218,7 +222,7 @@ Playlyfe.post(
 ```
 ### Patch
 ```python
-Playlyfe.patch(
+patch(
     route =  '' # The api route to patch data
     query = {} # The query params that you want to send to the route
     body = {} # The data you want to update in the api this will be automagically converted to json
@@ -226,7 +230,7 @@ Playlyfe.patch(
 ```
 ### Put
 ```python
-Playlyfe.put(
+put(
     route =  '' # The api route to put data
     query = {} # The query params that you want to send to the route
     body = {} # The data you want to update in the api this will be automagically converted to json
@@ -234,22 +238,22 @@ Playlyfe.put(
 ```
 ### Delete
 ```python
-Playlyfe.delete(
+delete(
     route =  '' # The api route to delete the component
     query = {} # The query params that you want to send to the route
 )
 ```
 ### Get Login Url
 ```python
-Playlyfe.get_login_url()
+get_login_url()
 #This will return the url to which the user needs to be redirected for the user to login. You can use this directly in your views.
 ```
 
 ### Exchange Code
 ```python
-Playlyfe.exchange_code(code)
+exchange_code(code)
 #This is used in the auth code flow so that the sdk can get the access token.
-#Before any request to the playlyfe api is made this has to be called atleast once.
+#Before any request to the playlyfe api is made this has to be called atleast once. 
 #This should be called in the the route/controller which you specified in your redirect_uri
 ```
 
@@ -258,19 +262,19 @@ A ```PlaylyfeException``` is thrown whenever an error occurs in each call.The Er
 
 License
 =======
-Playlyfe Python SDK v0.1.1
-http://dev.playlyfe.com/
-Copyright(c) 2013-2014, Playlyfe IT Solutions Pvt. Ltd, support@playlyfe.com
+Playlyfe Python SDK v0.2.0  
+http://dev.playlyfe.com/  
+Copyright(c) 2013-2014, Playlyfe IT Solutions Pvt. Ltd, support@playlyfe.com  
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+furnished to do so, subject to the following conditions:  
 
 The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+all copies or substantial portions of the Software.  
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
