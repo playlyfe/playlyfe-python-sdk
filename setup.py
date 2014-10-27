@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
   name = 'playlyfe',
-  version = '0.1.1',
+  version = '0.2.0',
   packages= ['src'],
   description='This is the official OAuth 2.0 Python client SDK for the Playlyfe API',
   long_description='''
