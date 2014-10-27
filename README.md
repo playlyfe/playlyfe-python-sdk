@@ -148,12 +148,11 @@ def logout():
   return redirect(url_for('login'))
 ```
 # Documentation
-## Init
 You can initiate a client by giving the client_id and client_secret params
 ```python
 Playlyfe(
-    client_id = ''
-    client_secret = ''
+    client_id = 'Your client id'
+    client_secret = 'Your client Secret'
     type = 'client' or 'code'
     redirect_uri = 'The url to redirect to' #only for auth code flow
     store = lambda token: redis.store(token) # The lambda which will persist the access token to a database. You have to persist the token to a database if you want the access token to remain the same in every request
@@ -179,22 +178,22 @@ You can either use `lambdas` or `methods` for the store and load functions
 
     redis = redis.StrictRedis(host='localhost', port=6379, db=0)
     Playlyfe(
-      client_id = "",
-      client_secret = "",
+      client_id = "Your client id",
+      client_secret = "Your client secret",
       type = 'client',
       store = lambda token: redis.set('token', json.dumps(token)),
       load = lambda: return json.loads(redis.get('token'))
     )
     # OR
     Playlyfe(
-      client_id = "",
-      client_secret = "",
+      client_id = "Your client id",
+      client_secret = "Your client secret",
       type = 'client',
       store = my_store,
       load = my_loader
     )
 ```
-### API
+**API**
 ```python
 api(
     method = 'GET' # The request method can be GET/POST/PUT/PATCH/DELETE
@@ -204,7 +203,7 @@ api(
 )
 ```
 
-### Get
+**Get**
 ```python
 get(
     route =  '' # The api route to get data from
@@ -212,7 +211,7 @@ get(
     raw = False # Whether you want the response to be in raw string form or json
 )
 ```
-### Post
+**Post**
 ```python
 post(
     route =  '' # The api route to post data to
@@ -220,7 +219,7 @@ post(
     body = {} # The data you want to post to the api this will be automagically converted to json
 )
 ```
-### Patch
+**Patch**
 ```python
 patch(
     route =  '' # The api route to patch data
@@ -228,7 +227,7 @@ patch(
     body = {} # The data you want to update in the api this will be automagically converted to json
 )
 ```
-### Put
+**Put**
 ```python
 put(
     route =  '' # The api route to put data
@@ -236,20 +235,20 @@ put(
     body = {} # The data you want to update in the api this will be automagically converted to json
 )
 ```
-### Delete
+**Delete**
 ```python
 delete(
     route =  '' # The api route to delete the component
     query = {} # The query params that you want to send to the route
 )
 ```
-### Get Login Url
+**Get Login Url**
 ```python
 get_login_url()
 #This will return the url to which the user needs to be redirected for the user to login. You can use this directly in your views.
 ```
 
-### Exchange Code
+**Exchange Code**
 ```python
 exchange_code(code)
 #This is used in the auth code flow so that the sdk can get the access token.
@@ -257,7 +256,7 @@ exchange_code(code)
 #This should be called in the the route/controller which you specified in your redirect_uri
 ```
 
-## Errors
+**Errors**  
 A ```PlaylyfeException``` is thrown whenever an error occurs in each call.The Error contains a name and message field which can be used to determine the type of error that occurred.
 
 License
