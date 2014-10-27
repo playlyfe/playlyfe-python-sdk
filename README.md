@@ -92,7 +92,7 @@ def client():
 ## 2. Authorization Code Flow
 In this flow you will have a controller which will get the authorization code and using this the sdk can get the access token. You need a view which will allow your user to login using the playlyfe platform. And then playlyfe server with make a get request with the code to your redirect uri. And you should find the code in the query params or the url and exchange the code with the Playlyfe SDK.
 ```python
-Playlyfe.exchange_code(code)
+exchange_code(code)
 ```
 
 Now you should be able to access the Playlyfe api across all your
