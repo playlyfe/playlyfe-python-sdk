@@ -22,6 +22,7 @@ def index():
 def client():
   global pl
   pl = Playlyfe(
+    version = 'v1',
     client_id = "YWY1ZTNhNDYtZmFmNi00MzNiLWIxZDktODFlNTVjYjEzNjA0",
     client_secret = "NDFhMDgzYWQtZGI1ZS00YTE3LWI5YTktYzliNmQ2YmI4NGJiNzg2YzIyODAtNTg1My0xMWU0LWE4MDEtZjkwOTJkZGEwOWUz",
     type = 'client'
@@ -37,6 +38,7 @@ def client():
 def login():
   global pl
   pl = Playlyfe(
+    version = 'v1',
     client_id = "YmE1MDQzMmUtMmU4MC00YWU4LWEyZGMtODJiMDQ3NGY2NDNh",
     client_secret = "ZTczNTM3N2UtMmE3MS00ZDdkLWI4NzctZjM3ZDFjZGI5ZGQ4YjM0Y2ViNTAtNTg1My0xMWU0LWE4MDEtZjkwOTJkZGEwOWUz",
     type = 'code',

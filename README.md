@@ -6,6 +6,18 @@ This is the official OAuth 2.0 Python client SDK for the Playlyfe API.
 It supports the `client_credentials` and `authorization code` OAuth 2.0 flows.
 For a complete API Reference checkout [Playlyfe Developers](https://dev.playlyfe.com/docs/api) for more information.
 
+>Note: Breaking Changes this is the new version of the sdk which uses the Playlyfe api v2 by default if you still want to use the v1 api you can do that so by passing a version param with 'v1'
+
+ex:
+```py
+pl = Playlyfe(
+    version = 'v1',
+    client_id = "Your client id",
+    client_secret = "Your client secret",
+    type = 'client'
+)
+```
+
 
 Requires
 --------
@@ -40,9 +52,11 @@ Using
   And then note down the client id and client secret you will need it later for using it in the sdk
 
 The Playlyfe class allows you to make rest api calls like GET, POST, .. etc
+**For v1 api**
 ```python
 # To get infomation of the player johny
 pl = Playlyfe(
+    version = 'v1',
     client_id = "Your client id",
     client_secret = "Your client secret",
     type = 'client'
@@ -71,6 +85,39 @@ pl.post(
   body = { 'trigger': "#{@trigger}" }
 )
 ```
+**For v2 api**
+```python
+# To get infomation of the player johny
+pl = Playlyfe(
+    client_id = "Your client id",
+    client_secret = "Your client secret",
+    type = 'client'
+  )
+player = pl.get(
+  route =  '/runtime/player',
+  query = { 'player_id': 'johny' }
+)
+print player['id']
+print player['scores']
+
+# To get all available processes with query
+processes = pl.get(route =  '/runtime/processes', query = { player_id: 'johny' })
+print processes
+# To start a process
+process =  pl.post(
+  route =  "/runtime/processes",
+  query = { 'player_id': 'johny' },
+  body = { 'definition': "collect", 'name': "My First Process" }
+)
+
+#To play a process
+pl.post(
+  route =  "/runtime/processes/%s/play" %process_id,
+  query = { 'player_id': 'johny' },
+  body = { 'trigger': "#{@trigger}" }
+)
+```
+
 # Examples for [Flask](http://flask.pocoo.org/)
 ## 1. Client Credentials Flow
 A typical flask app using client credentials code flow with a single route would look something like this
@@ -82,7 +129,7 @@ def client():
     client_secret = "NDFhMDgzYWQtZGI1ZS00YTE3LWI5YTktYzliNmQ2YmI4NGJiNzg2YzIyODAtNTg1My0xMWU0LWE4MDEtZjkwOTJkZGEwOWUz",
     type = 'client'
   )
-  players = pl.get(route = '/game/players')
+  players = pl.get(route = '/admin/players')
   html = "<ul>"
   for player in players['data']:
     html += "<li>" + str(player['alias']) + "</li>"
@@ -132,7 +179,7 @@ def code():
 def home():
   global pl
   if 'username' in session:
-    players = pl.get(route = '/game/players')
+    players = pl.get(route = '/admin/players')
     html = "<ul>"
     for player in players['data']:
       html += "<li>" + str(player['alias']) + "</li>"

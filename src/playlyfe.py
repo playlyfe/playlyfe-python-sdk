@@ -26,7 +26,8 @@ class Playlyfe:
   redirect_uri = ''
   code = None
 
-  def __init__(self, client_id, client_secret, type, redirect_uri='', store=None, load=None):
+  def __init__(self, client_id, client_secret, type, redirect_uri='', store=None, load=None, version='v2'):
+    self.version = version
     self.client_id = client_id
     self.client_secret = client_secret
     self.type = type
@@ -74,7 +75,7 @@ class Playlyfe:
     query['access_token'] = access_token['access_token']
     query = urllib.urlencode(query)
     headers = { 'Accept': 'text/json', 'Content-Type': 'application/json' }
-    req = urllib2.Request("https://api.playlyfe.com/v1%s?%s" %(route, query), json.dumps(body), headers)
+    req = urllib2.Request("https://api.playlyfe.com/%s%s?%s" %(self.version, route, query), json.dumps(body), headers)
     req.get_method = lambda: method.upper()
     response = ''
     try:
