@@ -162,10 +162,17 @@ def test_auth():
   )
   pl.get_login_url()
 
-
+def test_jwt():
+  token = Playlyfe.createJWT(
+    client_id="MWYwZGYzNTYtZGIxNy00OGM5LWExZGMtZjBjYTFiN2QxMTlh",
+    client_secret="NmM2YTcxOGYtNGE2ZC00ZDdhLTkyODQtYTIwZTE4ZDc5YWNjNWFiNzBiYjAtZmZiMC0xMWU0LTg5YzctYzc5NWNiNzA1Y2E4",
+    player_id='student1'
+  )
+  print token
 
 test_wrong_init()
 test_v1()
 test_v2()
 test_auth()
 test_store()
+test_jwt()

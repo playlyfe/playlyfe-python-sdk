@@ -194,6 +194,18 @@ def logout():
   session.pop('username', None)
   return redirect(url_for('login'))
 ```
+## 3. Custom Login Flow using JWT(JSON Web Token)
+```js
+token = Playlyfe.createJWT(
+    client_id = 'your client_id', 
+    client_secret = 'your client_secret', 
+    player_id = 'johny', // The player id associated with your user
+    scopes = ['player.runtime.read', 'player.runtime.write'], // The scopes the player has access to
+    expires = 3600; // 1 hour
+})
+```
+This is used to create jwt token which can be created when your user is authenticated. This token can then be sent to the frontend and or stored in your session. With this token the user can directly send requests to the Playlyfe API as the player.
+
 # Documentation
 You can initiate a client by giving the client_id and client_secret params
 ```python
@@ -308,7 +320,7 @@ A ```PlaylyfeException``` is thrown whenever an error occurs in each call.The Er
 
 License
 =======
-Playlyfe Python SDK v0.3.0  
+Playlyfe Python SDK v0.4.0  
 http://dev.playlyfe.com/  
 Copyright(c) 2013-2014, Playlyfe IT Solutions Pvt. Ltd, support@playlyfe.com  
 

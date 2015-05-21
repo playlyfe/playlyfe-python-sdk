@@ -3,6 +3,8 @@ import urllib2
 import urllib
 import json
 import time
+import jwt
+import datetime
 from urllib2 import URLError, HTTPError
 
 socket.setdefaulttimeout(60)
@@ -25,6 +27,12 @@ class Playlyfe:
   load = None
   redirect_uri = ''
   code = None
+
+  @staticmethod
+  def createJWT(client_id, client_secret, player_id, scopes = [], expires = 3600):
+    token = jwt.encode({'player_id': player_id, 'scopes': scopes, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=expires)}, client_secret, algorithm='HS256')
+    token = client_id + ':' + token
+    return token
 
   def __init__(self, client_id, client_secret, type, redirect_uri='', store=None, load=None, version='v2'):
     self.version = version

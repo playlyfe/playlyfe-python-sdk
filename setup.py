@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 setup(
   name = 'playlyfe',
-  version = '0.3.0',
+  version = '0.4.0',
   packages= ['src'],
   description='This is the official OAuth 2.0 Python client SDK for the Playlyfe API',
   long_description='''
@@ -18,6 +18,3 @@ setup(
   ],
   keywords='REST, Playlyfe API, Playlyfe SDK, Gamification'
 )
-
-#python setup.py bdist_wheel
-#twine upload dist/* -p password
