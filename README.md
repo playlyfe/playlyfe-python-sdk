@@ -1,6 +1,6 @@
-![Playlyfe Python SDK](./images/pl-python-sdk.png "Playlyfe Python SDK")
+![Playlyfe Python SDK](https://dev.playlyfe.com/images/assets/pl-python-sdk.png "Playlyfe Python SDK")
 
-Playlyfe Python SDK [![PyPI version](https://badge.fury.io/py/playlyfe.svg)](http://badge.fury.io/py/playlyfe)[![PyPi downloads](https://pypip.in/d/playlyfe/badge.png)](https://crate.io/packages/playlyfe/)
+Playlyfe Python SDK [![PyPI version](https://badge.fury.io/py/playlyfe.svg)](http://badge.fury.io/py/playlyfe)
 =================
 This is the official OAuth 2.0 Python client SDK for the Playlyfe API.
 It supports the `client_credentials` and `authorization code` OAuth 2.0 flows.
@@ -8,6 +8,7 @@ For a complete API Reference checkout [Playlyfe Developers](https://dev.playlyfe
 
 >Note: Breaking Changes this is the new version of the sdk which uses the Playlyfe api v2 by default if you still want to use the v1 api you can do that so by passing a version param with 'v1'
 
+The Playlyfe class allows you to make rest api calls like GET, POST, .. etc
 ex:
 ```py
 pl = Playlyfe(
@@ -16,44 +17,7 @@ pl = Playlyfe(
     client_secret = "Your client secret",
     type = 'client'
 )
-```
-
-
-Requires
---------
-Python 2.7.6
-
-Install
-----------
-```python
-pip install playlyfe
-```
-or if you are using django or flask
-Just add it to your requirements.txt file
-```python
-playlyfe==0.4.0
-```
-and do a pip install -r requirements.txt
-
-Using
------
-### Create a client
-  If you haven't created a client for your game yet just head over to [Playlyfe](http://playlyfe.com) and login into your account, and go to the game settings and click on client
-  **1.Client Credentials Flow**
-    In the client page click on whitelabel client
-    ![Creating a Whitelabel Client](./images/client.png "Creating a Whitelabel Client")
-
-  **2.Authorization Code Flow**
-    In the client page click on backend client and specify the redirect uri this will be the url where you will be redirected to get the token
-    ![Creating a Backend Client](./images/auth.png "Creating a Backend Client")
-
-> Note: If you want to test the sdk in staging you can click the Test Client button. You need to pass the player_id in the query in every request.
-
-  And then note down the client id and client secret you will need it later for using it in the sdk
-
-The Playlyfe class allows you to make rest api calls like GET, POST, .. etc
-**For v1 api**
-```python
+#For v1 api
 # To get infomation of the player johny
 pl = Playlyfe(
     version = 'v1',
@@ -84,8 +48,7 @@ pl.post(
   query = { 'player_id': 'johny' },
   body = { 'trigger': "#{@trigger}" }
 )
-```
-**For v2 api**
+#For v2 api
 ```python
 # To get infomation of the player johny
 pl = Playlyfe(
@@ -99,34 +62,41 @@ player = pl.get(
 )
 print player['id']
 print player['scores']
-
-# To get all available processes with query
-processes = pl.get(route =  '/runtime/processes', query = { player_id: 'johny' })
-print processes
-# To start a process
-process =  pl.post(
-  route =  "/runtime/processes",
-  query = { 'player_id': 'johny' },
-  body = { 'definition': "collect", 'name': "My First Process" }
-)
-
-#To play a process
-pl.post(
-  route =  "/runtime/processes/%s/play" %process_id,
-  query = { 'player_id': 'johny' },
-  body = { 'trigger': "#{@trigger}" }
-)
 ```
 
-# Examples for [Flask](http://flask.pocoo.org/)
+```
+Requires
+--------
+Python 2.7.6
+
+Install
+----------
+```python
+pip install playlyfe
+```
+or if you are using django or flask
+Just add it to your requirements.txt file
+```python
+playlyfe==0.3.0
+```
+and do a pip install -r requirements.txt
+
+Using
+-----
+### Create a client
+  If you haven't created a client for your game yet just head over to [Playlyfe](http://playlyfe.com) and login into your account, and go to the game settings and click on client.
+
 ## 1. Client Credentials Flow
+In the client page select Yes for both the first and second questions
+![client](https://cloud.githubusercontent.com/assets/1687946/7930229/2c2f14fe-0924-11e5-8c3b-5ba0c10f066f.png)
+
 A typical flask app using client credentials code flow with a single route would look something like this
 ```python
 @app.route("/client")
 def client():
   pl = Playlyfe(
-    client_id = "YWY1ZTNhNDYtZmFmNi00MzNiLWIxZDktODFlNTVjYjEzNjA0",
-    client_secret = "NDFhMDgzYWQtZGI1ZS00YTE3LWI5YTktYzliNmQ2YmI4NGJiNzg2YzIyODAtNTg1My0xMWU0LWE4MDEtZjkwOTJkZGEwOWUz",
+    client_id = "Your client id",
+    client_secret = "Your client secret",
     type = 'client'
   )
   players = pl.get(route = '/admin/players')
@@ -136,7 +106,11 @@ def client():
   html+= "</ul>"
   return html
 ```
+
 ## 2. Authorization Code Flow
+In the client page select yes for the first question and no for the second
+![auth](https://cloud.githubusercontent.com/assets/1687946/7930231/2c31c1fe-0924-11e5-8cb5-73ca0a002bcb.png)
+
 In this flow you will have a controller which will get the authorization code and using this the sdk can get the access token. You need a view which will allow your user to login using the playlyfe platform. And then playlyfe server with make a get request with the code to your redirect uri. And you should find the code in the query params or the url and exchange the code with the Playlyfe SDK.
 ```python
 exchange_code(code)
@@ -195,13 +169,15 @@ def logout():
   return redirect(url_for('login'))
 ```
 ## 3. Custom Login Flow using JWT(JSON Web Token)
+In the client page select no for the first question and yes for the second
+![jwt](https://cloud.githubusercontent.com/assets/1687946/7930230/2c2f2caa-0924-11e5-8dcf-aed914a9dd58.png)
 ```python
 token = Playlyfe.createJWT(
     client_id = 'your client_id', 
     client_secret = 'your client_secret', 
-    player_id = 'johny', # The player id associated with your user
-    scopes = ['player.runtime.read', 'player.runtime.write'], # The scopes the player has access to
-    expires = 3600; # 1 hour
+    player_id = 'johny', // The player id associated with your user
+    scopes = ['player.runtime.read', 'player.runtime.write'], // The scopes the player has access to
+    expires = 3600; // 1 hour
 })
 ```
 This is used to create jwt token which can be created when your user is authenticated. This token can then be sent to the frontend and or stored in your session. With this token the user can directly send requests to the Playlyfe API as the player.
