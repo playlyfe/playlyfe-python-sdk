@@ -64,7 +64,6 @@ print player['id']
 print player['scores']
 ```
 
-```
 Requires
 --------
 Python 2.7.6
@@ -77,7 +76,7 @@ pip install playlyfe
 or if you are using django or flask
 Just add it to your requirements.txt file
 ```python
-playlyfe==0.3.0
+playlyfe==0.4.0
 ```
 and do a pip install -r requirements.txt
 
